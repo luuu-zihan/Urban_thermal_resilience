@@ -10,7 +10,7 @@ Main updates compared with the single-city version:
 - Merge adjacent heatwave events into a compound heatwave event when the
   non-heatwave gap between two events is <= --merge_gap_days.
 - Loop over multiple cities using fixed filename patterns.
-- By default, write only one compact event-metric CSV for each city.
+- By default, write one event-metric CSV for each city.
 - Optionally truncate the recovery search window before the next merged heatwave
   event, preventing a subsequent heatwave from contaminating recovery metrics.
 
@@ -79,7 +79,7 @@ DEFAULT_USE_EVENT_RECOVERY_DAYS_REQUIRED = False
 DEFAULT_TRUNCATE_RECOVERY_AT_NEXT_EVENT = True
 
 # Output field setting
-# "compact" is recommended for normal analysis; "minimal" is for quick overview;
+# The default profile is used for normal analysis; "minimal" is for quick overview;
 # "full" preserves every diagnostic and original heatwave field.
 DEFAULT_OUTPUT_COLUMNS = "compact"
 
@@ -202,7 +202,7 @@ def parse_city_ids(city_ids: str, lst_dir: Path, lst_pattern: str) -> List[int]:
     s = str(city_ids).strip()
     if s.lower() == "all":
         # Convert the LST pattern to a regex by replacing {city:02d} with (\d+).
-        # This is intentionally simple and tailored for the user's fixed filenames.
+        # This follows the project filename conventions.
         escaped = re.escape(lst_pattern)
         escaped = escaped.replace(re.escape("{city:02d}"), r"(?P<city>\d+)")
         regex = re.compile("^" + escaped + "$", re.IGNORECASE)
@@ -884,7 +884,7 @@ def select_output_columns(metrics_df: pd.DataFrame, output_columns: str = "compa
 
     Profiles:
     - minimal: only IDs, dates, main Celsius metrics, recovered flag, and recovery time.
-    - compact: recommended default; keeps compound-event info, ERA5 intensity,
+    - default profile: keeps compound-event info, ERA5 intensity,
       availability, main metrics, and key method parameters.
     - full: keeps all diagnostic columns, including duplicated hw_* fields.
     """
@@ -917,7 +917,7 @@ def process_one_city(
     args: argparse.Namespace,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict]:
     """
-    Process one city and save the compact default output.
+    Process one city and save the default output.
 
     Default output is exactly one CSV per city:
         City_XX_thermal_resilience_event_metrics.csv
@@ -977,7 +977,7 @@ def process_one_city(
         events_merged.insert(0, "city_label", city_label)
         events_merged.insert(1, "city_id_from_loop", city_id)
 
-    # Compact default: one file per city.
+    # Default profile: one file per city.
     # Reduce columns before writing/returning so downstream all-city outputs use the same profile.
     metrics_df = select_output_columns(metrics_df, args.output_columns)
 
@@ -1039,7 +1039,7 @@ def main() -> None:
     parser.add_argument("--skip_missing", action="store_true",
                         help="Skip cities whose LST or heatwave file is missing. Otherwise raise an error.")
 
-    # Compact-output controls. Defaults keep only one output file per city.
+    # Output-profile controls. The default keeps one output file per city.
     parser.add_argument("--output_columns", default=DEFAULT_OUTPUT_COLUMNS,
                         choices=["minimal", "compact", "full"],
                         help=(
@@ -1217,4 +1217,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 

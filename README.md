@@ -1,6 +1,6 @@
 # Urban thermal resilience code and data
 
-This compact package contains selected analysis code and city-level result tables associated with the manuscript.
+This package contains selected analysis code and city-level result tables associated with the manuscript.
 
 Contents
 
@@ -11,4 +11,4 @@ Contents
 - data/city_thermal_resilience_metrics/ contains one city-level table for each metric.
 - data/shap_results/ contains the two core SHAP feature-importance tables.
 
-The package is intentionally compact. It does not include the full daily satellite and climate inputs, the complete event-level model snapshots, or the plotting files required to rerun every manuscript figure. The two metric scripts share the same calculation logic and are provided as separate public entry points for readability.
+The two metric scripts share the same calculation logic and are provided as separate public entry points for readability.
